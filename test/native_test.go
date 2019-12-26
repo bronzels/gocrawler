@@ -5,10 +5,10 @@ import (
 	//"fmt"
 	//"encoding/json"
 
-	"gocrawler/target/sinaforex"
+	"gocrawler/web/sinaforex"
 )
 
-func Test_Sinaforex(t *testing.T) {
-	sinaforex.Crawl(URL_SINAFOREX)
+func Test_Sinaforex_native(t *testing.T) {
+	sinaforex.Crawl(sinaforex.URL)
 	//t.Error("error")
 }

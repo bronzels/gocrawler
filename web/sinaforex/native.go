@@ -8,7 +8,7 @@ import (
 
 	"github.com/gocolly/colly"
 
-	"gocrawler/target"
+	"gocrawler/web"
 )
 
 func Crawl(url2crawl string) {
@@ -45,43 +45,41 @@ func Crawl(url2crawl string) {
 		//跳转到微信qq页面
 		//https://finance.sina.com.cn/money/forex/forexroll/2019-12-26/doc-iihnzhfz8326034.shtml
 		//微信qq页面再次跳转页面不可用
+		n := web.News{}
+
+		n.URL = url
+		n.URLid = web.MyMd5(url)
+
 		if referredAHref.Nodes != nil {
-			q := target.Quoter{}
-			q.URL = url
-			q.URLid = target.MyMd5(url)
-			q.QuoteeURL, _ = referredAHref.Attr("href")
-			q.QuoteeURLid = target.MyMd5(q.QuoteeURL)
-			log.Println(q)
-		} else {
-			n := target.News{}
-			n.URL = url
-			n.URLid = target.MyMd5(url)
-			n.Title = e.ChildText("h1[class=main-title]")
-			tPublishedAtStr := dataSource.Find("span[class=date]").Text()
-			tPublishedAtStr = strings.ReplaceAll(tPublishedAtStr, "年", "-")
-			tPublishedAtStr = strings.ReplaceAll(tPublishedAtStr, "月", "-")
-			tPublishedAtStr = strings.ReplaceAll(tPublishedAtStr, "日", "")
-			//timeTemplate := "2019年12月25日 15:13"
-			//timeTemplate := "2019-12-25 15:13"
-			timeTemplate := "2006-01-02 15:04"
-			n.PublishedAt, _ = time.ParseInLocation(timeTemplate, tPublishedAtStr, time.Local)
-			/*
-				dataSource1 := e.DOM.Find("div[class^='article-content clearfix']")
-				dataSource2 := dataSource1.Find("div[class=article-content-left]")
-				dataSource3 := dataSource2.Find("div[class=article][id=artibody]")
-				n.Contents = dataSource3.Find("p").Text()//e.ChildText("div[class^='article-content clearfix']>div[class=article-content-left]>div[class=article,id=artibody]>p")
-			*/
-			n.Contents = e.ChildText("div[class^='article-content clearfix']>div[class=article-content-left]>div[class=article][id=artibody]>p")
-			n.CrawledAt = time.Now()
-			log.Println(n)
+			n.QuoteeURL, _ = referredAHref.Attr("href")
+			n.QuoteeURLid = web.MyMd5(n.QuoteeURL)
 		}
+
+		n.Title = e.ChildText("h1[class=main-title]")
+		tPublishedAtStr := dataSource.Find("span[class=date]").Text()
+		tPublishedAtStr = strings.ReplaceAll(tPublishedAtStr, "年", "-")
+		tPublishedAtStr = strings.ReplaceAll(tPublishedAtStr, "月", "-")
+		tPublishedAtStr = strings.ReplaceAll(tPublishedAtStr, "日", "")
+		//timeTemplate := "2019年12月25日 15:13"
+		//timeTemplate := "2019-12-25 15:13"
+		timeTemplate := "2006-01-02 15:04"
+		n.PublishedAt, _ = time.ParseInLocation(timeTemplate, tPublishedAtStr, time.Local)
+		/*
+			dataSource1 := e.DOM.Find("div[class^='article-content clearfix']")
+			dataSource2 := dataSource1.Find("div[class=article-content-left]")
+			dataSource3 := dataSource2.Find("div[class=article][id=artibody]")
+			n.Contents = dataSource3.Find("p").Text()//e.ChildText("div[class^='article-content clearfix']>div[class=article-content-left]>div[class=article,id=artibody]>p")
+		*/
+		n.Contents = e.ChildText("div[class^='article-content clearfix']>div[class=article-content-left]>div[class=article][id=artibody]>p")
+		n.CrawledAt = time.Now()
+		log.Println(n)
 		//}
 	})
 
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		url := e.Attr("href")
 		/*
-			if strings.Compare(e.Attr("target"), "_blank") == 0 && strings.HasSuffix(url, "shtml") {
+			if strings.Compare(e.Attr("web"), "_blank") == 0 && strings.HasSuffix(url, "shtml") {
 				detailCollector.Visit(url)
 			}
 		*/

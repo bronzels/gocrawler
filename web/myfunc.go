@@ -1,28 +1,10 @@
-package target
+package web
 
 import (
 	"crypto/md5"
 	"encoding/hex"
 	"fmt"
-	"time"
 )
-
-type Quoter struct {
-	URL         string
-	URLid       string
-	QuoteeURL   string
-	QuoteeURLid string
-}
-
-type News struct {
-	EntryURL    string
-	URL         string
-	URLid       string
-	Title       string
-	PublishedAt time.Time
-	Contents    string
-	CrawledAt   time.Time
-}
 
 func MyMd5(s string) string {
 	m := md5.New()
