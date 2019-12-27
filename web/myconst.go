@@ -3,7 +3,7 @@ package web
 const (
 	COLLY_ENV_myAsync     = true
 	COLLY_ENV_userAgent   = "Mozilla/5.0 (X11; Linux x86_64)    AppleWebKit/537.36 (KHTML, like Gecko) Chrome/75.0.3770.100 Safari/537.36"
-	COLLY_ENV_parallelism = 2
+	COLLY_ENV_parallelism = 4
 	COLLY_ENV_randomDelay = 5
 
 	//NEWS_entry  = 0

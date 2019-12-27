@@ -31,7 +31,7 @@ func getCollector(myAsync bool, userAgent string, parallelism int, randomDelay i
 	detailCollector := c.Clone()
 
 	detailCollector.OnResponse(func(r *colly.Response) {
-		fmt.Println(r.StatusCode)
+		log.Println(r.StatusCode)
 	})
 
 	return c, detailCollector
@@ -40,11 +40,14 @@ func getCollector(myAsync bool, userAgent string, parallelism int, randomDelay i
 func otherSetCollector(c *colly.Collector, detailCollector *colly.Collector, urlToCrawl string) {
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		url := e.Attr("href")
-		detailCollector.Visit(url)
+		if strings.HasPrefix(url, "http") {
+			log.Println("Crawling:", url)
+			detailCollector.Visit(url)
+		}
 	})
 
 	c.OnRequest(func(r *colly.Request) {
-		fmt.Println("Visiting", r.URL.String())
+		log.Println("Visiting:", r.URL.String())
 	})
 
 	c.Visit(urlToCrawl)
@@ -70,23 +73,32 @@ func crawlNews(myAsync bool, userAgent string, parallelism int, randomDelay int,
 	*/
 
 	qlang.Import("strings", strings_Exports) // 导入一个自定义的包，叫 strings（和标准库同名）
-	ql := qlang.New()
 
 	detailCollector.OnHTML(newsEntry, func(e *colly.HTMLElement) {
+		url := e.Request.URL.String()
+
 		var extracteds [len(queriesToExtract)]string
 		for index, query := range queriesToExtract {
+			var extracted = ""
 			if query != "" {
-				extracteds[index] = e.ChildText(query)
+				extracted = e.ChildText(query)
 			} else {
-				extracteds[index] = ""
+				extracted = ""
 			}
+			if (index != NEWS_arrindex_publishedAt && index != NEWS_arrindex_referredAHref) && extracted == "" {
+				log.Println("empty index:", index)
+				return
+			}
+			extracteds[index] = extracted
 		}
 
 		n := News{}
 
-		url := e.Request.URL.String()
+		n.EntryURL = urlToCrawl
+
 		n.URL = url
 		n.URLid = MyMd5(url)
+
 		//跳转到微信qq页面
 		//https://finance.sina.com.cn/money/forex/forexroll/2019-12-26/doc-iihnzhfz8326034.shtml
 		//微信qq页面再次跳转页面不可用
@@ -97,20 +109,31 @@ func crawlNews(myAsync bool, userAgent string, parallelism int, randomDelay int,
 		}
 
 		n.Title = extracteds[NEWS_arrindex_title]
+
+		nowTime := time.Now()
+
 		tPublishedAtStr := extracteds[NEWS_arrindex_publishedAt]
-		err := ql.SafeEval(fmt.Sprintf(scriptPublishedAt, tPublishedAtStr))
-		if err != nil {
-			log.Fatal(err)
-			return
+		log.Println("tPublishedAtStr:", tPublishedAtStr)
+		if tPublishedAtStr != "" {
+			ql := qlang.New()
+
+			expr := fmt.Sprintf(scriptPublishedAt, tPublishedAtStr)
+			err := ql.SafeEval(expr)
+			if err != nil {
+				log.Fatal(err)
+				return
+			}
+
+			scriptedPublishedAtStr := fmt.Sprintf("%s", ql.Var(SCRIPT_VAR_NAME_RET))
+			log.Println("scriptedPublishedAtStr:", scriptedPublishedAtStr)
+			timeTemplate := "2006-01-02 15:04"
+			n.PublishedAt, _ = time.ParseInLocation(timeTemplate, scriptedPublishedAtStr, time.Local)
+		} else {
+			n.PublishedAt = nowTime
 		}
 
-		scriptedPublishedAtStr := fmt.Sprintf("%s", ql.Var(SCRIPT_VAR_NAME_RET))
-		fmt.Println("scriptedPublishedAtStr:", scriptedPublishedAtStr)
-		timeTemplate := "2006-01-02 15:04"
-		n.PublishedAt, _ = time.ParseInLocation(timeTemplate, scriptedPublishedAtStr, time.Local)
-
 		n.Contents = extracteds[NEWS_arrindex_contents]
-		n.CrawledAt = time.Now()
+		n.CrawledAt = nowTime
 		log.Println(n)
 		//}
 	})
