@@ -2,13 +2,12 @@ package sinaforex
 
 import (
 	"fmt"
+	"github.com/bronzels/gocrawler/src/crawl"
 	"log"
 	"strings"
 	"time"
 
 	"github.com/gocolly/colly"
-
-	"gocrawler/web"
 )
 
 func Crawl(url2crawl string) {
@@ -45,14 +44,14 @@ func Crawl(url2crawl string) {
 		//跳转到微信qq页面
 		//https://finance.sina.com.cn/money/forex/forexroll/2019-12-26/doc-iihnzhfz8326034.shtml
 		//微信qq页面再次跳转页面不可用
-		n := web.News{}
+		n := crawl.News{}
 
 		n.URL = url
-		n.URLid = web.MyMd5(url)
+		n.URLid = crawl.MyMd5(url)
 
 		if referredAHref.Nodes != nil {
 			n.QuoteeURL, _ = referredAHref.Attr("href")
-			n.QuoteeURLid = web.MyMd5(n.QuoteeURL)
+			n.QuoteeURLid = crawl.MyMd5(n.QuoteeURL)
 		}
 
 		n.Title = e.ChildText("h1[class=main-title]")
@@ -79,7 +78,7 @@ func Crawl(url2crawl string) {
 	c.OnHTML("a[href]", func(e *colly.HTMLElement) {
 		url := e.Attr("href")
 		/*
-			if strings.Compare(e.Attr("web"), "_blank") == 0 && strings.HasSuffix(url, "shtml") {
+			if strings.Compare(e.Attr("crawl"), "_blank") == 0 && strings.HasSuffix(url, "shtml") {
 				detailCollector.Visit(url)
 			}
 		*/

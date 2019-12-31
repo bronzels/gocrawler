@@ -1,4 +1,4 @@
-package web
+package crawl
 
 const (
 	COLLY_ENV_myAsync     = true

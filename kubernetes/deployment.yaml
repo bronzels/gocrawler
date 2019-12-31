@@ -1,0 +1,24 @@
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: gocrawler
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        name: gocrawler
+    spec:
+      containers:
+      - name: gocrawler
+        image: bronzels/gocrawler:latest
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: BIND_PORT
+          value: "50052"
+        - name: BIND_IP
+          value: "0.0.0.0"
+        ports:
+        - containerPort: 50052
+        command: [ "/go/bin/crawlserver"]

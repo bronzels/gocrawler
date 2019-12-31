@@ -5,7 +5,7 @@ import (
 	//"fmt"
 	//"encoding/json"
 
-	"gocrawler/web/sinaforex"
+	"github.com/bronzels/gocrawler/src/crawl/sinaforex"
 )
 
 func Test_Sinaforex_native(t *testing.T) {
