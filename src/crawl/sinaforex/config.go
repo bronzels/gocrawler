@@ -5,7 +5,7 @@ const (
 	NEWS_newsEntry  = "div[class^=main-content]"
 )
 
-var NEWS_queriesToExtract = [4]string{
+var NEWS_queriesToExtract = []string{
 	"h1[class=main-title]", //NEWS_arrindex_title = 0
 	"div[class=top-bar-wrap]>div[class^='top-bar ani']>div[class='top-bar-inner clearfix']>div[class=date-source]>span[class=date]", //NEWS_arrindex_publishedAt    = 1
 	"div[class=top-bar-wrap]>div[class^='top-bar ani']>div[class='top-bar-inner clearfix']>div[class=date-source]>a[href]",          //NEWS_arrindex_referredAHref  = 2

@@ -2,13 +2,13 @@
 apiVersion: extensions/v1beta1
 kind: Deployment
 metadata:
-  name: gocrawler
+  name: gocrawlernews
 spec:
   replicas: 1
   template:
     metadata:
       labels:
-        name: gocrawler
+        name: gocrawlernews
     spec:
       containers:
       - name: gocrawler
@@ -21,4 +21,4 @@ spec:
           value: "0.0.0.0"
         ports:
         - containerPort: 50058
-        command: [ "/go/bin/crawlserver"]
+        command: [ "/go/bin/crawlnewsserver"]

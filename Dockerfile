@@ -21,3 +21,4 @@ RUN apk add --no-cache ca-certificates rsync shadow bash
 # copy the go binaries from the build image
 COPY --from=0 /go/bin /go/bin
 WORKDIR /go/bin
+
